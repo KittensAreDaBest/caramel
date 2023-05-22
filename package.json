@@ -1,0 +1,24 @@
+{
+  "name": "caramel",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "license": "MIT",
+  "dependencies": {
+    "@fastify/cors": "^8.2.1",
+    "@fastify/rate-limit": "^8.0.0",
+    "fastify": "^4.17.0",
+    "is-valid-domain": "^0.1.6",
+    "nodemon": "^2.0.22",
+    "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.2.1",
+    "typescript": "^5.0.4"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "tsc": "tsc",
+    "start": "ts-node index.ts",
+    "dev": "nodemon index.ts"
+  }
+}

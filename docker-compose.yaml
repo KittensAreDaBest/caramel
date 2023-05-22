@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    hostname: looking-glass
+    user: "0:0" # if not using bird can remove
+    network_mode: host # ipv6 support due to docker networking
+    volumes:
+      - /run/bird/bird.ctl:/var/run/bird.ctl # if not using bird can remove
+    environment:
+      - CORS_ORIGIN=https://lg.example.com # set to your domain
+      - BGP_ENABLED=true # allow bgp queryies
+      - PINGTRACE_ENABLED=false # allow ping/trace/mtr
