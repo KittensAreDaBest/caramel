@@ -4,38 +4,33 @@ The looking glass backend for [Smokey](https://github.com/kittensaredabest/smoke
 ## Installation
 
 ### Dependencies
-* docker
-* docker-compose
-* a reverse proxy (nginx, caddy)
+- docker
+- docker-compose
+- a reverse proxy (nginx, caddy)
 
 ### Download Files
-copy the docker-compose.example.yml and rename it to docker-compose.yml and place in a new directory of your choice on the host machine that you are hosting Caramel on
+Copy the `docker-compose.example.yml` and rename it to `docker-compose.yml`. Place it in a new directory of your choice on the host machine where you are hosting Caramel.
 
-### Configure docker-compose.yml
-configure the following environment variables in the docker-compose.yml file
+### Configure `docker-compose.yml`
+Configure the following environment variables in the `docker-compose.yml` file:
 
-CORS_ORIGIN: the domain that you are hosting your looking glass on (ex: https://lg.example.com)
-
-BGP_ENABLED: true/false if you want to have bgp route trace in your looking glass (using bird2 which you install and configure on the host system, ideally sending a full table to it from your router / route collector)
-
-PINGTRACE_ENABLED: true/false if you want to have ping/traceroute/mtr in your looking glass (you would only really disable this if you wanted your looking glass only for bgp route trace)
-
-
+- `CORS_ORIGIN`: the domain where you are hosting your looking glass (e.g., https://lg.example.com)
+- `BGP_ENABLED`: `true` or `false`. Enable this if you want to have BGP route trace in your looking glass. You need to install and configure `bird2` on the host system and ideally send a full table to it from your router/route collector.
+- `PINGTRACE_ENABLED`: `true` or `false`. Enable this if you want to have ping/traceroute/mtr in your looking glass. Disable it if you only want your looking glass for BGP route trace.
 
 ### Docker
-If you are not using bird then edit docker-compose.yml and remove the sections where bird is refrenced
+If you are not using bird, edit `docker-compose.yml` and remove the sections where bird is referenced.
 
-Pull the docker container
-```
+Pull the docker container:
+```bash
 docker compose pull
 ```
 
-Start the docker container
-```
+Start the docker container:
+```bash
 docker compose up -d
 ```
-The service will now lisen on port 8080
-
+The service will now listen on port 8080 on the host machine.
 
 ### Reverse Proxy
 
