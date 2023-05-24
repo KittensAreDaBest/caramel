@@ -55,6 +55,9 @@ server {
 
     server_name lg-api.nyc.example.com;
 
+    location /files/ {
+        root /var/www/lg/files;
+    }
     location / {
         include proxy_params;
         proxy_pass http://127.0.0.1:8080;
@@ -65,6 +68,10 @@ server {
 #### Caddy
 ```
 lg-api.nyc.example.com {
+    handle_path /files/* {
+        file_server
+        root * /var/www/lg/files
+    }
     reverse_proxy localhost:8080
 }
 ```
