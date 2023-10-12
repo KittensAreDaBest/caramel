@@ -13,5 +13,5 @@ services:
       - /run/bird/bird.ctl:/var/run/bird.ctl # if not using bird can remove
     environment:
       - CORS_ORIGIN=https://lg.example.com # set to your domain
-      - BGP_ENABLED=true # allow bgp queryies
+      - BGP_ENABLED=true # allow bgp queries
       - PINGTRACE_ENABLED=false # allow ping/trace/mtr
