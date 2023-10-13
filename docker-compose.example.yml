@@ -2,16 +2,23 @@ version: '3.7'
 
 services:
   caramel:
-    # If experiencing errors like "operation not permitted" when running the container as non root user
-    # Try using ghcr.io/kittensaredabest/caramel:latest-debian instead of ghcr.io/kittensaredabest/caramel:latest
-    image: ghcr.io/kittensaredabest/caramel:latest
+    # Image Configuration
+    image: ghcr.io/kittensaredabest/caramel:latest  # Use 'latest-debian' if experiencing "operation not permitted" errors
+    
+    # Container Behavior
     restart: always
     hostname: looking-glass
-    user: "0:0" # if not using bird can remove
-    network_mode: host # ipv6 support due to docker networking
+    
+    # User and Networking
+    user: "0:0"  # Remove if not using BIRD
+    network_mode: host  # Required for IPv6 support due to Docker networking limitations
+    
+    # Volume Configuration
     volumes:
-      - /run/bird/bird.ctl:/var/run/bird.ctl # if not using bird can remove
+      - /run/bird/bird.ctl:/var/run/bird.ctl  # Remove if not using BIRD, make sure that you're removing the whole volumes section, as it can't be empty
+    
+    # Environment Variables
     environment:
-      - CORS_ORIGIN=https://lg.example.com # set to your domain
-      - BGP_ENABLED=true # allow bgp queries
-      - PINGTRACE_ENABLED=false # allow ping/trace/mtr
+      CORS_ORIGIN: "https://lg.example.com"  # Replace with your domain (required)
+      BGP_ENABLED: "true"  # Enable or disable BGP queries
+      PINGTRACE_ENABLED: "false"  # Enable or disable ping, traceroute, and MTR
