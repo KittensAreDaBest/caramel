@@ -72,8 +72,11 @@ const executeCommand = (command: string, args: string[]): Promise<string> => {
             output += data;
         });
 
-        child.on('close', (code) => {
-            if (code !== 0) {
+        child.on('close', (code: number) => {
+            // If application exits with code higher than 1, then throw an error and log it in console.
+            // The reason why it's above 1, is because ping exits with code 1, if it's unable to get an ICMP reply.
+            if (code > 1) {
+                console.log(`Command failed with code ${code}: ${output}`);
                 return reject(new Error(`Command failed with code ${code}: ${output}`));
             }
             resolve(output);
@@ -136,7 +139,7 @@ server.post('/lg', async (request: FastifyRequest, reply: FastifyReply) => {
 
         reply.status(200).send({ data: output });
     } catch (err) {
-        reply.status(400).send({ error: 'Invalid request' });
+        reply.status(400).send({ error: 'Something went wrong while processing the request' });
     }
 });
 
