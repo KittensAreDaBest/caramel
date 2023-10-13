@@ -41,9 +41,9 @@ const validateSubnet = (subnet: string): boolean => {
 
 const isValidTarget = (type: string, target: string): boolean => {
     if (type === 'bgp') {
-        return isIP(target) || validateSubnet(target);
+        return isIP(target) !== 0 || validateSubnet(target);
     }
-    return isIP(target) || isValidDomain(target);
+    return isIP(target) !== 0 || isValidDomain(target);
 };
 
 const formatDate = () => {
