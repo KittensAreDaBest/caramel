@@ -2,8 +2,9 @@ version: '3.7'
 
 services:
   caramel:
-    # Image Configuration
-    image: ghcr.io/kittensaredabest/caramel:latest  # Use 'latest-debian' if experiencing "operation not permitted" errors
+    # If experiencing errors like "operation not permitted" when running the container as non root user
+    # Try using ghcr.io/kittensaredabest/caramel:latest-debian instead of ghcr.io/kittensaredabest/caramel:latest
+    image: ghcr.io/kittensaredabest/caramel:latest
     
     # Container Behavior
     restart: always
