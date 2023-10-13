@@ -68,34 +68,34 @@ server.post('/lg', (request: FastifyRequest, reply: FastifyReply) => {
         switch (validation.type) {
             case 'mtr':
                 if (!(process.env.PINGTRACE_ENABLED === 'true')) {
-                    return reply.status(400).send({ error: 'MTR is disabled' });
+                    return reply.status(403).send({ error: 'MTR is disabled' });
                 }
                 const mtr = spawnSync('mtr', ['-c', '5', '-r', '-w', '-b', validation.target]);
                 return reply.status(200).send({ data: mtr.stdout.toString().length > 0 ? mtr.stdout.toString() : mtr.stderr.toString() });
 
             case 'traceroute':
                 if (!(process.env.PINGTRACE_ENABLED === 'true')) {
-                    return reply.status(400).send({ error: 'Traceroute is disabled' });
+                    return reply.status(403).send({ error: 'Traceroute is disabled' });
                 }
                 const traceroute = spawnSync('traceroute', ['-w', '1', '-q', '1', validation.target]);
                 return reply.status(200).send({ data: traceroute.stdout.toString().length > 0 ? traceroute.stdout.toString() : traceroute.stderr.toString() });
 
             case 'ping':
                 if (!(process.env.PINGTRACE_ENABLED === 'true')) {
-                    return reply.status(400).send({ error: 'Ping is disabled' });
+                    return reply.status(403).send({ error: 'Ping is disabled' });
                 }
                 const ping = spawnSync('ping', ['-c', '5', validation.target]);
                 return reply.status(200).send({ data: ping.stdout.toString().length > 0 ? ping.stdout.toString() : ping.stderr.toString() });
 
             case 'bgp':
                 if (!(process.env.BGP_ENABLED === 'true')) {
-                    return reply.status(400).send({ error: 'BGP is disabled' });
+                    return reply.status(403).send({ error: 'BGP is disabled' });
                 }
                 const bgp = spawnSync('birdc', ['-r', 'sh', 'ro', 'all', 'for', validation.target]);
                 return reply.status(200).send({ data: bgp.stdout.toString().length > 0 ? bgp.stdout.toString() : bgp.stderr.toString() });
 
             default:
-                return reply.status(400).send({ error: 'Invalid type' });
+                return reply.status(422).send({ error: 'Invalid type' });
         }
     } catch (err) {
         reply.status(400).send({ error: 'Invalid request' });
