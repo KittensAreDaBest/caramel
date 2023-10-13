@@ -1,5 +1,5 @@
 import fastify, { FastifyReply, FastifyRequest } from 'fastify';
-import { spawnSync } from 'child_process';
+import { spawn } from 'child_process';
 import cors from '@fastify/cors';
 import { z } from 'zod';
 import { isIP } from 'net';
@@ -58,12 +58,35 @@ const formatDate = () => {
     return `${day}.${month}.${year} ${hours}:${minutes} (${timeZone})`;
 };
 
+// Execute command asynchronously
+const executeCommand = (command: string, args: string[]): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const child = spawn(command, args);
+        let output = '';
+
+        child.stdout.on('data', (data) => {
+            output += data;
+        });
+
+        child.stderr.on('data', (data) => {
+            output += data;
+        });
+
+        child.on('close', (code) => {
+            if (code !== 0) {
+                return reject(new Error(`Command failed with code ${code}: ${output}`));
+            }
+            resolve(output);
+        });
+    });
+};
+
 // Server routes
-server.get('/', (request: FastifyRequest, reply: FastifyReply) => {
+server.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
     reply.status(200).send({ message: 'https://github.com/KittensAreDaBest/caramel' });
 });
 
-server.post('/lg', (request: FastifyRequest, reply: FastifyReply) => {
+server.post('/lg', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
         const validation = z.object({
             type: z.enum(['mtr', 'traceroute', 'ping', 'bgp']),
@@ -77,38 +100,41 @@ server.post('/lg', (request: FastifyRequest, reply: FastifyReply) => {
         const remoteIp = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
         console.log(`${formatDate()} - ${validation.type} ${validation.target} from ${remoteIp}`);
 
+        let output;
         switch (validation.type) {
             case 'mtr':
                 if (!(process.env.PINGTRACE_ENABLED === 'true')) {
                     return reply.status(403).send({ error: 'MTR is disabled' });
                 }
-                const mtr = spawnSync('mtr', ['-c', '5', '-r', '-w', '-b', validation.target]);
-                return reply.status(200).send({ data: mtr.stdout.toString().length > 0 ? mtr.stdout.toString() : mtr.stderr.toString() });
+                output = await executeCommand('mtr', ['-c', '5', '-r', '-w', '-b', validation.target]);
+                break;
 
             case 'traceroute':
                 if (!(process.env.PINGTRACE_ENABLED === 'true')) {
                     return reply.status(403).send({ error: 'Traceroute is disabled' });
                 }
-                const traceroute = spawnSync('traceroute', ['-w', '1', '-q', '1', validation.target]);
-                return reply.status(200).send({ data: traceroute.stdout.toString().length > 0 ? traceroute.stdout.toString() : traceroute.stderr.toString() });
+                output = await executeCommand('traceroute', ['-w', '1', '-q', '1', validation.target]);
+                break;
 
             case 'ping':
                 if (!(process.env.PINGTRACE_ENABLED === 'true')) {
                     return reply.status(403).send({ error: 'Ping is disabled' });
                 }
-                const ping = spawnSync('ping', ['-c', '5', validation.target]);
-                return reply.status(200).send({ data: ping.stdout.toString().length > 0 ? ping.stdout.toString() : ping.stderr.toString() });
+                output = await executeCommand('ping', ['-c', '5', validation.target]);
+                break;
 
             case 'bgp':
                 if (!(process.env.BGP_ENABLED === 'true')) {
                     return reply.status(403).send({ error: 'BGP is disabled' });
                 }
-                const bgp = spawnSync('birdc', ['-r', 'sh', 'ro', 'all', 'for', validation.target]);
-                return reply.status(200).send({ data: bgp.stdout.toString().length > 0 ? bgp.stdout.toString() : bgp.stderr.toString() });
+                output = await executeCommand('birdc', ['-r', 'sh', 'ro', 'all', 'for', validation.target]);
+                break;
 
             default:
                 return reply.status(422).send({ error: 'Invalid type' });
         }
+
+        reply.status(200).send({ data: output });
     } catch (err) {
         reply.status(400).send({ error: 'Invalid request' });
     }
