@@ -46,6 +46,18 @@ const isValidTarget = (type: string, target: string): boolean => {
     return isIP(target) || isValidDomain(target);
 };
 
+const formatDate = () => {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // January is 0!
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  
+    return `${day}.${month}.${year} ${hours}:${minutes} (${timeZone})`;
+};
+
 // Server routes
 server.get('/', (request: FastifyRequest, reply: FastifyReply) => {
     reply.status(200).send({ message: 'https://github.com/KittensAreDaBest/caramel' });
@@ -63,7 +75,7 @@ server.post('/lg', (request: FastifyRequest, reply: FastifyReply) => {
         }
 
         const remoteIp = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
-        console.log(`[${new Date()}][LG] ${validation.type} ${validation.target} from ${remoteIp}`);
+        console.log(`${formatDate()} - ${validation.type} ${validation.target} from ${remoteIp}`);
 
         switch (validation.type) {
             case 'mtr':
