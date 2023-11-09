@@ -56,7 +56,7 @@ server {
     server_name lg-api.nyc.example.com;
 
     location /files/ {
-        root /var/www/lg/files;
+        root /var/www/lg/;
     }
     location / {
         include proxy_params;
