@@ -9,7 +9,7 @@
     "fastify": "^4.17.0",
     "is-valid-domain": "^0.1.6",
     "nodemon": "^2.0.22",
-    "zod": "^3.21.4"
+    "zod": "^3.22.3"
   },
   "devDependencies": {
     "@types/node": "^20.2.1",
