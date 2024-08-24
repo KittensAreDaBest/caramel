@@ -1,14 +1,16 @@
-import fastify, { FastifyReply, FastifyRequest } from 'fastify'
-import spawn from 'child_process'
-import cors from '@fastify/cors'
-import { z } from "zod";
-import { isIP } from 'net';
+import cors from '@fastify/cors';
+import { WebSocket } from '@fastify/websocket';
+import spawn from 'child_process';
+import fastify, { FastifyReply, FastifyRequest } from 'fastify';
 import isValidDomain from 'is-valid-domain';
+import { isIP } from 'net';
+import { z } from "zod";
 
 const server = fastify()
 server.register(cors, {
     origin: process.env.CORS_ORIGIN || "*"
 })
+server.register(import('@fastify/websocket'))
 server.register(import('@fastify/rate-limit'), {
     max: 30,
     timeWindow: '1 minute'
@@ -41,6 +43,20 @@ const validateSubnet = (subnet: string) => {
 
 server.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
     return reply.status(200).send({ "message": "https://github.com/KittensAreDaBest/caramel" })
+})
+
+server.register(async function (fastify) {
+    fastify.get('/latency', {websocket: true}, async (connection: WebSocket, request: FastifyRequest) => {
+        const remoteIp = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
+        console.log(`[${new Date()}][LATENCY] websocket connected from ${remoteIp}`)
+        connection.on('message', (message: string) => {
+            // message as string and send it back
+            connection.send(message.toString());
+        })
+        connection.on('close', () => {
+            console.log(`[${new Date()}][LATENCY] websocket disconnected from ${remoteIp}`)
+        })
+    })
 })
 
 server.post('/lg', async (request: FastifyRequest, reply: FastifyReply) => {
@@ -101,7 +117,7 @@ server.post('/lg', async (request: FastifyRequest, reply: FastifyReply) => {
     }
 })
 
-server.listen({ port: 8080, host: "0.0.0.0" }, (err: any, address: string) => {
+server.listen({ port: 33046, host: "0.0.0.0" }, (err: any, address: string) => {
     if (err) {
         console.error(err)
         process.exit(1)
